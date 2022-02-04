@@ -216,8 +216,8 @@ type Position @entity {
   # amount of token 1 ever withdrawn from position (without fees)
   withdrawnToken1: BigDecimal!
   # all time collected fees in token0
-  collectedToken0: BigDecimal!
-  collectedToken1: BigDecimal!
+  collectedToken0: BigDecimal
+  collectedToken1: BigDecimal
   collectedFeesToken0: BigDecimal!
   # all time collected fees in token1
   collectedFeesToken1: BigDecimal!
