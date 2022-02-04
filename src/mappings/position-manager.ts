@@ -7,7 +7,7 @@ import {
   NonfungiblePositionManager,
   Transfer
 } from '../types/NonfungiblePositionManager/NonfungiblePositionManager'
-import { Bundle, Position, PositionSnapshot, Token, DecreaseEvent, IncreaseEvent, CollectFees } from '../types/schema'
+import { Bundle, Position, Token, DecreaseEvent, IncreaseEvent, CollectFees } from '../types/schema'
 import { ADDRESS_ZERO, factoryContract, ZERO_BD, ZERO_BI } from '../utils/constants'
 import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
 import { convertTokenToDecimal, loadTransaction } from '../utils'
@@ -62,23 +62,6 @@ function updateFeeVars(position: Position, event: ethereum.Event, tokenId: BigIn
   return position
 }
 
-function savePositionSnapshot(position: Position, event: ethereum.Event): void {
-  let positionSnapshot = new PositionSnapshot(position.id.concat('#').concat(event.block.number.toString()))
-  positionSnapshot.owner = position.owner
-  positionSnapshot.pool = position.pool
-  positionSnapshot.position = position.id
-  positionSnapshot.blockNumber = event.block.number
-  positionSnapshot.timestamp = event.block.timestamp
-  positionSnapshot.liquidity = position.liquidity
-  positionSnapshot.depositedToken0 = position.depositedToken0
-  positionSnapshot.depositedToken1 = position.depositedToken1
-  positionSnapshot.withdrawnToken0 = position.withdrawnToken0
-  positionSnapshot.withdrawnToken1 = position.withdrawnToken1
-  positionSnapshot.transaction = loadTransaction(event).id
-  positionSnapshot.feeGrowthInside0LastX128 = position.feeGrowthInside0LastX128
-  positionSnapshot.feeGrowthInside1LastX128 = position.feeGrowthInside1LastX128
-  positionSnapshot.save()
-}
 
 export function handleIncreaseLiquidity(event: IncreaseLiquidity): void {
   let position = getPosition(event, event.params.tokenId)
@@ -126,7 +109,6 @@ export function handleIncreaseLiquidity(event: IncreaseLiquidity): void {
 
   position.save()
 
-  savePositionSnapshot(position!, event)
 }
 
 export function handleDecreaseLiquidity(event: DecreaseLiquidity): void {
@@ -172,7 +154,6 @@ if (Address.fromString(position.pool).equals(Address.fromHexString('0x8fe8d9bb8e
 
   position = updateFeeVars(position!, event, event.params.tokenId)
   position.save()
-  savePositionSnapshot(position!, event)
 }
 
 export function handleCollect(event: Collect): void {
@@ -212,7 +193,6 @@ export function handleCollect(event: Collect): void {
 
   position = updateFeeVars(position!, event, event.params.tokenId)
   position.save()
-  savePositionSnapshot(position!, event)
 }
 
 export function handleTransfer(event: Transfer): void {
@@ -226,5 +206,4 @@ export function handleTransfer(event: Transfer): void {
   position.owner = event.params.to
   position.save()
 
-  savePositionSnapshot(position!, event)
 }
